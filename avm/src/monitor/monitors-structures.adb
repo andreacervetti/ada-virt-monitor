@@ -896,7 +896,6 @@ package body Monitors.Structures is
       Bytes_RX      : Unsigned_Long_Long;
       Bytes_TX      : Unsigned_Long_Long;
    begin
---        VM.Reset(Found);
       -- Get disks statistics;
       if VM.Is_Active then
          -- collect statistics
@@ -1061,7 +1060,7 @@ package body Monitors.Structures is
    function Migrate (VM : VM_Type; To : Hypervisor) return Positive
    is
    begin
-      -- simply connect to function in Updaters
+      -- connect to function in Updaters
       return Updaters.Start_Migration_Job
         (Domain_Type (VM), Connect_Type (To.all));
    end Migrate;
