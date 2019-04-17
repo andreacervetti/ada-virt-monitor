@@ -33,6 +33,9 @@ with Glib.Object;
 with Glib.Main;
 use Glib.Main;
 
+with Gtkada.Dialogs;      use Gtkada.Dialogs;
+
+
 with Simple_Callbacks; use Simple_Callbacks;
 with Frame_Helpers;    use Frame_Helpers;
 
@@ -168,9 +171,11 @@ package body Migration_Window is
       
       Data           : Migration_Data_Record;
       
-      Unique_Name : String := 
+      Unique_Name    : String := 
         "domain:" & Server_Name & "/" & Domain_Name & "/migration";
-      
+            
+      Dummy          : Message_Dialog_Buttons;
+
    begin
       -- check if a window with same name is open
       if Switch_To_Window (Unique_Name) then
@@ -178,7 +183,7 @@ package body Migration_Window is
       end if;
 
       declare
-         -- This one liner sucks. TODO: write single funcyion
+         -- This one liner sucks. TODO: write single function
          Host_List : Hypervisor_Array :=
            List_Servers (Get_Group (Group (Get_Host (Server_Name))));
          Count : Natural := 0;
@@ -192,8 +197,12 @@ package body Migration_Window is
             end if;
          end loop;
          -- if there are no connected servers return
-         -- TODO add a message box
          if Count = 0 then
+            Dummy :=
+                 Message_Dialog
+                   ("There are no others connected server in group",
+                    Dialog_Type => Error,
+                    Buttons     => Button_OK);
             return;
          end if;
          Data.Target.Set_Active (0);
