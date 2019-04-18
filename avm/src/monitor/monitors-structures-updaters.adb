@@ -252,7 +252,8 @@ package body Monitors.Structures.Updaters is
             " " &
             Exception_Message (Error));
          Display_Message (Exception_Information (Error));
-
+         Display_Message ("Updater task stopped. Close the program " &
+                            "and contact the developer");
    end Updater;
 
 end Monitors.Structures.Updaters;
