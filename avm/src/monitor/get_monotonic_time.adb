@@ -62,6 +62,6 @@ begin
       return 0;
    else
       return Long_Long_Integer
-          (Returned_Clock.tv_sec * 1_000_000_000 + Returned_Clock.tv_nsec);
+        (Returned_Clock.Tv_Sec * 1_000_000_000 + Returned_Clock.Tv_Nsec);
    end if;
 end Get_Monotonic_Time;

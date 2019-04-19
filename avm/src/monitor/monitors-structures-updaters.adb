@@ -26,8 +26,8 @@ package body Monitors.Structures.Updaters is
    -----------------------
    -- migration objects --
    -----------------------
-   -- We build a map indexed by a prossive number containing a pointer
-   -- to the worker task calling the migration API.
+   -- We build a map indexed by a progressive number containing a pointer
+   -- to the worker task that calls the migration API.
    -- Many migration jobs can run concurrently
    -- TODO: Decide how and when clean up the map
    protected Last_Job is
