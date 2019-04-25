@@ -51,6 +51,7 @@ with Monitors.Structures;      use Monitors.Structures;
 with Monitors.XMLTrees;        use Monitors.XMLTrees;
 use Monitors.XMLTrees.XMLTree;
 use Monitors;
+with Formats;  use Formats;
 
 package body Domain_Window is
 
@@ -97,6 +98,7 @@ package body Domain_Window is
 
       Store       : Gtk_Tree_Store;
       Domain_Tree : XMLTree.Tree;
+      Domain      : VM_Type;
 
       ------------------------
       -- Store_Set (nested) --
@@ -194,8 +196,16 @@ package body Domain_Window is
                   when Dir     => Get_Attribute (Child, "dir"),
                   when Network => Get_Attribute (Child, "protocol"),
                   when Volume  => Get_Attribute (Child, "volume"));
+            Host : Hypervisor;
+            Volume : Volume_Type;
          begin
             Add_Info_Row (Grid, "Path:", Path);
+            if Path /= "" then
+               Host := Get_Host (Domain.Server);
+               Volume := Get_Volume_By_Path (Host.all, Path);
+               Add_Info_Row
+                 (Grid, "Size:", Memory_Size_Simple (Volume.Volume_Capacity));
+            end if;
          end;
 
          Child := Get_By_Path (C, "readonly");
@@ -433,7 +443,6 @@ package body Domain_Window is
       Text_Render : Gtk_Cell_Renderer_Text;
       Icon_Render : Gtk_Cell_Renderer_Pixbuf;
 
-      Domain      : VM_Type;
       Cursor      : XMLTree.Cursor;
       Unique_Name : String := "domain:" & Server_Name & "/" & Domain_Name;
 

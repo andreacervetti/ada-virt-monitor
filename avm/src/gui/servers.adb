@@ -88,7 +88,7 @@ package body Servers is
       Add_Info_Row (Grid, "Model:", Server.Model);
 
       declare
-         Int_Array : Netface_Array := Get_Interface_List (Server);
+         Int_Array : Interface_Array := Get_Interface_List (Server);
       begin
          -- Interfaces box
          Gtk.Box.Gtk_New_Vbox (VBox, Homogeneous => False);

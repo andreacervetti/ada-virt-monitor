@@ -32,6 +32,7 @@ with Ada.Text_IO; use Ada.Text_IO;
 
 with Libvirt_Domain_Api; use Libvirt_Domain_Api;
 
+
 package body Virtada.Host is
 
    type Credential_Array is
@@ -169,7 +170,7 @@ package body Virtada.Host is
       return virConnectPtr
    is
 
-      Host : Chars_Ptr;
+      Host : chars_ptr;
       Temp : virConnectPtr := virConnectPtr (System.Null_Address);
       Flag : Interfaces.C.unsigned;
    begin

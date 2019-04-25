@@ -748,11 +748,12 @@ package body Monitors.Structures is
    function Get_Interface_List
      (Connection : Hypervisor;
       Active     : Boolean := True;
-      Inactive   : Boolean := True) return Netface_Array
+      Inactive   : Boolean := True) return Interface_Array
    is
-      I_Array : Interface_Array :=
-        List_Interfaces (Connection.all, Active, Inactive);
-      N_Array : Netface_Array (I_Array'Range);
+      I_Array : Virtada.Host.Interfaces.Interface_Array
+        := Virtada.Host.Interfaces.List_Interfaces
+          (Connection.all, Active, Inactive);
+      N_Array : Interface_Array (I_Array'Range);
    begin
       for I in I_Array'Range loop
          N_Array (I) := (I_Array (I) with null record);
@@ -1096,6 +1097,31 @@ package body Monitors.Structures is
          return 0.0;
    end Get_Job_Progress;
 
+   ------------------------
+   -- Get_Volume_By_Path --
+   ------------------------
+   overriding function Get_Volume_By_Path
+     (Connection : Connect_Type'Class;
+      Path       : String)
+      return Volume_Type
+   is
+   begin
+      return (Virtada.Host.Storage_Pools.Get_Volume_By_Path
+              (Connection, Path) with null record);
+   end Get_Volume_By_Path;
+
+   ---------------------
+   -- Volume_Capacity --
+   ---------------------
+   function Volume_Capacity (Volume : Volume_Type)
+                         return Unsigned_Long_Long
+   is
+      use Virtada.Host.Storage_Pools;
+      Info : Volume_Info;
+   begin
+      Info := Get_Volume_Info (Volume);
+      return Info.Capacity;
+   end Volume_Capacity;
 
 begin
 

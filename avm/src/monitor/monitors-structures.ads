@@ -25,8 +25,10 @@ with Ada.Strings.Fixed.Less_Case_Insensitive;
 
 with Virtada.Host;            use Virtada.Host;
 with Virtada.Host.Domain;     use Virtada.Host.Domain;
-with Virtada.Host.Interfaces; use Virtada.Host.Interfaces;
-                              use Virtada;
+with Virtada.Host.Interfaces;
+with Virtada.Host.Storage_Pools;
+use Virtada;
+
 
 with Monitors.XMLTrees;       use Monitors.XMLTrees;
 
@@ -131,14 +133,28 @@ package Monitors.Structures is
 
    function Is_Running (Job_Number : Positive) return Boolean;
 
-   type Netface is new Interface_Type with null record;
-   type Netface_Array is array (Positive range <>) of Netface;
+   type Interface_Type is new Virtada.Host.Interfaces.Interface_Type with null record;
+   type Interface_Array is array (Positive range <>) of Interface_Type;
 
    function Get_Interface_List
      (Connection : Hypervisor;
       Active     : Boolean := True;
-      Inactive   : Boolean := True) return Netface_Array;
+      Inactive   : Boolean := True) return Interface_Array;
 
+   type Storage_Pool_Type is new Virtada.Host.Storage_Pools.Storage_Pool_Type
+   with null record;
+
+   type Storage_Pool_Array is array (Positive range <>) of Storage_Pool_Type;
+
+   type Volume_Type is new Virtada.Host.Storage_Pools.Volume_Type
+   with null record;
+
+   overriding function Get_Volume_By_Path (Connection : Connect_Type'Class;
+                                           Path       : String)
+                                           return Volume_Type;
+
+   function Volume_Capacity (Volume : Volume_Type)
+                             return Unsigned_Long_Long;
 
 private
    protected Sighandle is
