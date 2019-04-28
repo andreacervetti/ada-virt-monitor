@@ -70,7 +70,7 @@ private
 
    type Storage_Pool_Type is new Ada.Finalization.Controlled with
       record
-         Ptr : virStoragePoolPtr;
+         Ptr : virStoragePoolPtr := virStoragePoolPtr (Null_Address);
       end record;
 
    overriding procedure Adjust (Object : in out Storage_Pool_Type);

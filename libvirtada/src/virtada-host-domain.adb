@@ -342,6 +342,7 @@ package body Virtada.Host.Domain is
               Write_Bytes => Left.Write_Bytes + Right.Write_Bytes,
               Errs        => Left.Errs        + Right.Errs);
    end "+";
+
    ------------
    -- Create --
    ------------
