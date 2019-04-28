@@ -543,6 +543,25 @@ package body Viewport_Callbacks is
       end if;
    end Shutdown_Domain;
 
+   --------------------
+   -- Restart_Domain --
+   --------------------
+   procedure Restart_Domain
+     (Item : access Gtk_Menu_Item_Record'Class;
+      Row  : Row_Ref)
+   is
+      pragma Unreferenced (Item);
+      VM    : VM_Type;
+      Found : Boolean := False;
+   begin
+      Get_VM (Row, VM, Found);
+      if Found then
+         if not Reboot (VM) then
+            null;
+         end if;
+      end if;
+   end Restart_Domain;
+
    ---------------------
    -- Pause_Domain --
    ---------------------
@@ -694,6 +713,7 @@ package body Viewport_Callbacks is
    is
       Run_Item      : Gtk.Image_Menu_Item.Gtk_Image_Menu_Item;
       Shutdown_Item : Gtk.Image_Menu_Item.Gtk_Image_Menu_Item;
+      Reboot_Item   : Gtk.Image_Menu_Item.Gtk_Image_Menu_Item;
       Pause_Item    : Gtk.Image_Menu_Item.Gtk_Image_Menu_Item;
       Migrate_Item  : Gtk.Image_Menu_Item.Gtk_Image_Menu_Item;
       XML_Item      : Gtk.Image_Menu_Item.Gtk_Image_Menu_Item;
@@ -710,7 +730,7 @@ package body Viewport_Callbacks is
       Gtk_New_From_Stock (Run_Item, "gtk-media-play", null);
       Run_Item.Set_Label ("Run");
       -- Shutdown
-      Gtk_New_From_Stock (Shutdown_Item, "gtk-stop", null);
+      Gtk_New_From_Stock (Shutdown_Item, "gtk-quit", null);
       Shutdown_Item.Set_Label ("Shutdown");
       if VM.Is_Active then
          Run_Item.Set_Sensitive (False);
@@ -729,9 +749,22 @@ package body Viewport_Callbacks is
          Run_Item.Set_Sensitive (True);
          Shutdown_Item.Set_Sensitive (False);
       end if;
+      -- Reboot
+      Gtk_New_From_Stock (Reboot_Item, "gtk-quit", null);
+      Reboot_Item.Set_Label ("Reboot");
+      if VM.Is_Active and then VM.State = Running then
+         Menu_User_Cb.Connect
+           (Reboot_Item,
+            "activate",
+            Menu_User_Cb.To_Marshaller (Restart_Domain'Access),
+            Row);
+         Reboot_Item.Set_Sensitive (True);
+      else
+         Reboot_Item.Set_Sensitive (False);
+      end if;
       -- Pause
       Gtk_New_From_Stock (Pause_Item, "gtk-media-pause", null);
-      if Vm.State = Paused then
+      if VM.State = Paused then
          Pause_Item.Set_Label ("Resume");
          Menu_User_Cb.Connect
            (Pause_Item,
@@ -776,6 +809,7 @@ package body Viewport_Callbacks is
 
       Menu.Append (Run_Item);
       Menu.Append (Shutdown_Item);
+      Menu.Append (Reboot_Item);
       Menu.Append (Pause_Item);
       Menu.Append (Migrate_Item);
       Menu.Append (XML_Item);

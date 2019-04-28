@@ -73,7 +73,7 @@ package Monitors.Structures is
    type Hypervisor_Record is new Connect_Type with private;
    type Hypervisor is access all Hypervisor_Record;
 
-   function Group (Server : not null access Hypervisor_Record) return String;
+   function Group (Server : not null Hypervisor) return String;
 
    type Hypervisor_Array is array (Positive range <>) of Hypervisor;
 
@@ -92,7 +92,8 @@ package Monitors.Structures is
       Group : String := "Default") return Boolean;
    function Disconnect_Server (Server_Name : String) return Boolean;
 
-   function Server_Name (Server : not null access Hypervisor_Record) return String;
+   function Server_Name (Server : not null access Hypervisor_Record)
+                         return String;
    procedure Remove_Host (Server_Name : String);
    function Get_Host (Server_Name : String) return Hypervisor;
 

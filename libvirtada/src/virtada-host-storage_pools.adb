@@ -120,15 +120,19 @@ package body Virtada.Host.Storage_Pools is
    -----------------------------------------
    overriding procedure Adjust (Object : in out Storage_Pool_Type) is
    begin
-      if virStoragePoolRef (Object.Ptr) = -1 then
-         raise Storage_Pool_Error;
+      if Object.Ptr /= virStoragePoolPtr (Null_Address) then
+         if virStoragePoolRef (Object.Ptr) = -1 then
+            raise Storage_Pool_Error;
+         end if;
       end if;
    end Adjust;
    
    overriding procedure Finalize (Object : in out Storage_Pool_Type) is
    begin
-      if virStoragePoolFree (Object.Ptr) = -1 then
-         raise Storage_Pool_Error;
+      if Object.Ptr /= virStoragePoolPtr (Null_Address) then
+         if virStoragePoolFree (Object.Ptr) = -1 then
+            raise Storage_Pool_Error;
+         end if;
       end if;
    end Finalize;
 
@@ -137,8 +141,8 @@ package body Virtada.Host.Storage_Pools is
    -----------------------------------------
    overriding procedure Adjust (Object : in out Volume_Type) is
    begin
-      if Object.Ptr /= VirStorageVolPtr (Null_Address) then
-         if VirStorageVolRef (Object.Ptr) = -1 then
+      if Object.Ptr /= virStorageVolPtr (Null_Address) then
+         if virStorageVolRef (Object.Ptr) = -1 then
             raise Volume_Error;
          end if;
       end if;
@@ -146,8 +150,8 @@ package body Virtada.Host.Storage_Pools is
    
    overriding procedure Finalize (Object : in out Volume_Type) is
    begin
-      if Object.Ptr /= VirStorageVolPtr (Null_Address) then
-         if VirStorageVolFree (Object.Ptr) = -1 then
+      if Object.Ptr /= virStorageVolPtr (Null_Address) then
+         if virStorageVolFree (Object.Ptr) = -1 then
             raise Volume_Error;
          end if;
       end if;

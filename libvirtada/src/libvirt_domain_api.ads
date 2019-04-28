@@ -1566,7 +1566,7 @@ package Libvirt_Domain_Api is
   -- hypervisor choice  
   -- Send ACPI event  
   -- Use guest agent  
-  -- Use initctl  
+  -- Use initctl  e
   -- Send a signal  
   -- Use paravirt guest control  
    subtype virDomainRebootFlagValues is unsigned;

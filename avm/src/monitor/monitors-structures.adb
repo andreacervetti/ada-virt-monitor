@@ -793,7 +793,7 @@ package body Monitors.Structures is
    -----------
    -- Group --
    -----------
-   function Group (Server : not null access Hypervisor_Record) return String is
+   function Group (Server : not null Hypervisor) return String is
    begin
       return To_String (Server.Group);
    end Group;
@@ -1114,7 +1114,7 @@ package body Monitors.Structures is
    -- Volume_Capacity --
    ---------------------
    function Volume_Capacity (Volume : Volume_Type)
-                         return Unsigned_Long_Long
+                             return Unsigned_Long_Long
    is
       use Virtada.Host.Storage_Pools;
       Info : Volume_Info;

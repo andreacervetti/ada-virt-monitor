@@ -363,12 +363,12 @@ package body Virtada.Host.Domain is
    --------------
    -- Shutdown --
    --------------
-   function Shutdown (VM : Domain_Type)
+   function Shutdown (Domain : Domain_Type)
                       return Boolean
    is
    -- Shutdown a VM in a controlled manner
    begin
-      case virDomainShutdown (VM.Ptr) is
+      case virDomainShutdown (Domain.Ptr) is
          when 0 =>
             return True;
          when -1 =>
@@ -377,6 +377,23 @@ package body Virtada.Host.Domain is
             raise Domain_Error;
       end case;
    end Shutdown;
+
+   ------------
+   -- Reboot --
+   ------------
+   function Reboot (Domain : Domain_Type)
+                    return Boolean
+   is
+   begin
+      case virDomainReboot (Domain.Ptr, 0) is
+         when 0 =>
+            return True;
+         when -1 =>
+            return False;
+         when others =>
+            raise Domain_Error;
+      end case;
+   end Reboot;
 
    -------------
    -- Suspend --

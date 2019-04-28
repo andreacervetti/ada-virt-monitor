@@ -56,8 +56,11 @@ package Virtada.Host.Domain is
    function Create (Domain : Domain_Type) return Boolean;
    -- Start a VM
 
-   function Shutdown (VM : Domain_Type) return Boolean;
+   function Shutdown (Domain : Domain_Type) return Boolean;
    -- Controlled shutdown of a vm
+
+   function Reboot (Domain : Domain_Type) return Boolean;
+   -- Shutdown and restart a guest OS
 
    function Suspend (Domain : Domain_Type) return Boolean;
    -- Pause a VM
