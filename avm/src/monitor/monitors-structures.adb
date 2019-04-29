@@ -260,9 +260,14 @@ package body Monitors.Structures is
       if To_Lower (Protocol) = "qemu" then
          return;
       end if;
+      if To_Lower (Protocol) = "bhyve" then
+         return;
+      end if;
       if To_Lower (Protocol) = "esx" then
          Port := 443;
       elsif To_Lower (Protocol) = "qemu+ssh" then
+         Port := 22;
+      elsif To_Lower (Protocol) = "bhyve+ssh" then
          Port := 22;
       else
          raise Url_Error;

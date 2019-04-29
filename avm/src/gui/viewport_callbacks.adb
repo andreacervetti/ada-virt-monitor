@@ -141,11 +141,15 @@ package body Viewport_Callbacks is
    QEMU_Protocol       : aliased constant String := "qemu";
    QEMU_SSH_Protocol   : aliased constant String := "qemu+ssh";
    VMWare_Esx_Protocol : aliased constant String := "esx";
+   Bhyve_Protocol      : aliased constant String := "bhyve";
+   Bhyve_SSH_Protocol  : aliased constant String := "bhyve+ssh";
 
-   Protocols : constant array (Gint range 0..2) of access constant String :=
+   Protocols : constant array (Gint range 0..4) of access constant String :=
      (QEMU_SSH_Protocol'Access,
       QEMU_Protocol'Access,
-      VMWare_Esx_Protocol'Access);
+      VMWare_Esx_Protocol'Access,
+      Bhyve_Protocol'Access,
+      Bhyve_SSH_Protocol'Access);
 
    ------------------
    -- Text_Changed --
@@ -205,6 +209,8 @@ package body Viewport_Callbacks is
       Data.Protocol.Append_Text ("QEMU/SSH");
       Data.Protocol.Append_Text ("QEMU");
       Data.Protocol.Append_Text ("VMWare ESX");
+      Data.Protocol.Append_Text ("Bhyve");
+      Data.Protocol.Append_Text ("Bhyve/SSH");
     Data.Protocol.Set_Active (0);
       Changed_Cb.Connect
         (Data.Protocol,
