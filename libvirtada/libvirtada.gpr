@@ -1,5 +1,6 @@
 project Libvirtada is
 
+   for Create_Missing_Dirs use "True";
    for Source_Dirs use ("src");
    for Library_Name use "virtada";
    for Library_Dir use "lib";
