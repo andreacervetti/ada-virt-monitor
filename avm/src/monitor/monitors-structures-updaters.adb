@@ -79,6 +79,35 @@ package body Monitors.Structures.Updaters is
       Uri_Ptr  : Str_Ptr;
       ID       : Task_Id := Current_Task;
       Max_Time : Natural;
+      task Timer is
+         entry Start;
+      end Timer;
+
+      task body Timer is
+      begin
+         select
+            accept Start;
+         or
+            terminate;
+         end select;
+         if Max_Time > 0 then
+            select
+               delay Duration (Max_Time);
+            then abort
+               loop
+                  delay 1.0; -- avoid busy wait
+                  if not Is_Callable (ID) then
+                     exit;
+                  end if;
+               end loop;
+            end select;
+            if Is_Callable (ID) then
+               if Dom.Suspend then
+                  Display_Message (Dom.Name & " migration timeout");
+               end if;
+            end if;
+         end if;
+      end Timer;
 
    begin
       accept Migrate (Domain  : Domain_Type;
@@ -95,29 +124,9 @@ package body Monitors.Structures.Updaters is
          end if;
          Max_Time := Timeout;
       end;
-      declare
-         task Timer;
-         task body Timer is
-         begin
-            if Max_Time > 0 then
-               select
-                  delay Duration (Max_Time);
-               then abort
-                  loop
-                     delay 1.0; -- avoid busy wait
-                     if not Is_Callable (ID) then
-                        exit;
-                     end if;
-                  end loop;
-               end select;
-               if Is_Callable (ID) then
-                  if Dom.Suspend then
-                     Display_Message (Dom.Name & " migration timeout");
-                  end if;
-               end if;
-            end if;
-         end Timer;
-
+      if Max_Time > 0 then
+         Timer.Start;
+      end if;
       begin
          Dom.Migrate (Conn.all, Uri_Ptr.all);
          Migration_Jobs (Position).Ok := True;

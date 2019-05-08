@@ -21,6 +21,7 @@ with Gtk.Window;         use Gtk.Window;
 with Gtk.Box;            use Gtk.Box;
 with Gtk.Grid;           use Gtk.Grid;
 with Gtk.Combo_Box_Text; use Gtk.Combo_Box_Text;
+with Gtk.Spin_Button;    use Gtk.Spin_Button;
 with Gtk.Button_Box;     use Gtk.Button_Box;
 with Gtk.Button;         use Gtk.Button;
 with Gtk.Enums;          use Gtk.Enums;
@@ -34,7 +35,6 @@ use Glib.Main;
 
 with Gtkada.Dialogs;      use Gtkada.Dialogs;
 
-
 with Simple_Callbacks; use Simple_Callbacks;
 with Frame_Helpers;    use Frame_Helpers;
 
@@ -47,7 +47,7 @@ with Glib; use Glib;
 
 package body Migration_Window is
    
-   -- We derive a new gtk_window type with migratio data used
+   -- We derive a new gtk_window type with migration data used
    -- by the callbacks. We cannot use global variables because
    -- different migration windows can be open at the same time
    type My_Window_Record is new Gtk_Window_Record with
@@ -57,6 +57,7 @@ package body Migration_Window is
          Target      : Gtk_Combo_Box_Text;
          VM          : VM_Type;
          Job         : Positive;
+         Timeout     : Gtk_Spin_Button;
       end record;
    
    type My_Window is access all My_Window_Record'Class;
@@ -110,19 +111,21 @@ package body Migration_Window is
       Label       : Gtk_Label;
       Progress    : Gtk_Progress_Bar;
       To_Host     : Hypervisor;
-      Timeout_Id  : G_Source_Id;
+      Timed_Id    : G_Source_Id;
+      Timeout     : Natural;
    begin
-      -- Retrieve migration parameters stored as user_data in the
-      -- window object
+      -- Retrieve migration parameters stored in the window object
       Win := My_Window (Object.Get_Ancestor (Gtk.Window.Get_Type));
 
       --no error control yet
       Win.VM  := Get_Domain (Win.Source_Host.Get_Text,
                              Win.Domain.Get_Text);
       To_Host := Get_Host (Win.Target.Get_Active_Text);
+      
+      Timeout := Natural (Win.Timeout.Get_Value_As_Int);
 
       -- Start migration
-      Win.Job := Migrate (Win.VM, To_Host);
+      Win.Job := Migrate (Win.VM, To_Host, Timeout);
       
       -- Set a label with the migration message
       -- we must set it before raplacing the content of the window
@@ -142,7 +145,7 @@ package body Migration_Window is
       Progress.Set_Show_Text (True);
       Box.Pack_Start (Progress);
 
-      Timeout_Id := Timeout_Add (1000, Timed_Progress_Updater'Access, Progress);
+      Timed_Id := Timeout_Add (1000, Timed_Progress_Updater'Access, Progress);
       
       Win.Show_All;
    end Start_Migration;
@@ -213,6 +216,7 @@ package body Migration_Window is
       Grid := Create_List_Grid;
       Box.Add (Grid);
             
+      -- Domain to migrate
       Gtk.Label.Gtk_New (Label, "Migrate Domain :");
       Label.Set_Halign (Align_End);
       Gtk.Label.Gtk_New (Window.Domain, Domain_Name);
@@ -220,20 +224,29 @@ package body Migration_Window is
       Grid.Attach_Next_To (Label, null, Pos_Bottom);
       Grid.Attach_Next_To (Window.Domain, Label, Pos_Right);
 
+      -- Source Host
       Gtk.Label.Gtk_New (Label, "From Host :");
       Label.Set_Halign (Align_End);
       Gtk.Label.Gtk_New (Window.Source_Host, Server_Name);
       Window.Source_Host.Set_Halign (Align_Start);
       Grid.Attach_Next_To (Label, null, Pos_Bottom);
       Grid.Attach_Next_To (Window.Source_Host, Label, Pos_Right);
-      
+
+      -- Target Host
       Gtk.Label.Gtk_New (Label, "To Host :");
       Label.Set_Halign (Align_End);
       Window.Target.Set_Halign (Align_Start);
       Grid.Attach_Next_To (Label, null, Pos_Bottom);
       Grid.Attach_Next_To (Window.Target, Label, Pos_Right);
-      
-      
+
+      -- Timeout
+      Gtk.Label.Gtk_New (Label, "Timeout :");
+      Label.Set_Halign (Align_End);
+      Gtk.Spin_Button.Gtk_New (Window.Timeout, 0.0, 3600.0, 30.0);
+      Window.Timeout.Set_Halign (Align_Start);
+      Grid.Attach_Next_To (Label, null, Pos_Bottom);
+      Grid.Attach_Next_To (Window.Timeout, Label, Pos_Right);
+
       Gtk.Button_Box.Gtk_New (Buttons, Orientation_Horizontal);
       Buttons.Set_Layout (Buttonbox_End);
       
