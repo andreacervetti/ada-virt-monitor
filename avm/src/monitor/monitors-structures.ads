@@ -126,7 +126,7 @@ package Monitors.Structures is
    function Server        (VM : VM_Type) return String;
    function Start         (VM : VM_Type) return Boolean;
 
-   function Migrate     (VM : VM_Type; To : Hypervisor)
+   function Migrate     (VM : VM_Type; To : Hypervisor; Timeout : Natural := 0)
                          return Positive;
 
    function Get_Job_Progress (VM : VM_Type) return Long_Float;

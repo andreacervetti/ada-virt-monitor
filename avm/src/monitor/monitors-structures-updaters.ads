@@ -23,9 +23,11 @@ private package Monitors.Structures.Updaters is
       entry Close;
    end Updater;
 
-   function Start_Migration_Job
-     (Domain : Domain_Type; To_Host : Connect_Type; To_Uri : String := "")
-      return Positive;
+   function Start_Migration_Job (Domain  : Domain_Type;
+                                 To_Host : Connect_Type;
+                                 To_Uri  : String := "";
+                                 Timeout : Natural := 0)
+                                 return Positive;
 
    function Is_Running (Job_Number : Positive) return Boolean;
 

@@ -17,19 +17,23 @@
 -- along with this program.  If not, see <http://www.gnu.org/licenses/>.   --
 --                                                                         --
 -----------------------------------------------------------------------------
-with Ada.Exceptions;  use Ada.Exceptions;
+with Ada.Exceptions;          use Ada.Exceptions;
+with Ada.Task_Identification; use Ada.Task_Identification;
+with Ada.Containers.Ordered_Maps;
+
 with Monitors.Logger; use Monitors.Logger;
 with Get_Monotonic_Time;
-with Ada.Containers.Ordered_Maps;
 
 package body Monitors.Structures.Updaters is
    -----------------------
    -- migration objects --
    -----------------------
    -- We build a map indexed by a progressive number containing a pointer
-   -- to the worker task that calls the migration API.
+   -- to the worker task calling the migration API.
    -- Many migration jobs can run concurrently
    -- TODO: Decide how and when clean up the map
+   --       Maybe it could be better use another method, like task
+   --       identification to find the working task
    protected Last_Job is
       procedure Get_New (New_Number : out Positive);
    private
@@ -49,7 +53,8 @@ package body Monitors.Structures.Updaters is
       entry Migrate
         (Domain  : Domain_Type;
          To_Host : Connect_Type;
-         To_Uri  : String);
+         To_Uri  : String;
+         Timeout : Natural := 0);
    end Migration_Task;
 
    type Migration_Ptr is access Migration_Task;
@@ -65,15 +70,22 @@ package body Monitors.Structures.Updaters is
 
    Migration_Jobs : Migration_Jobs_Map.Map;
 
+
    task body Migration_Task is
       type Str_Ptr is access String;
       for Str_Ptr'Storage_Size use 1024;
-      Dom : Domain_Type;
-      Conn : access constant Connect_Type;
-      Uri_Ptr : Str_Ptr;
+      Dom      : Domain_Type;
+      Conn     : access constant Connect_Type;
+      Uri_Ptr  : Str_Ptr;
+      ID       : Task_Id := Current_Task;
+      Max_Time : Natural;
+
    begin
-      accept Migrate
-        (Domain : Domain_Type; To_Host : Connect_Type; To_Uri : String) do
+      accept Migrate (Domain  : Domain_Type;
+                      To_Host : Connect_Type;
+                      To_Uri  : String;
+                      Timeout : Natural := 0)
+      do
          Dom := Domain;
          Conn := To_Host'Unchecked_Access;
          if To_Uri = "" then
@@ -81,7 +93,31 @@ package body Monitors.Structures.Updaters is
          else
             Uri_Ptr := new String'("tcp:" & To_Uri & ":49152");
          end if;
+         Max_Time := Timeout;
       end;
+      declare
+         task Timer;
+         task body Timer is
+         begin
+            if Max_Time > 0 then
+               select
+                  delay Duration (Max_Time);
+               then abort
+                  loop
+                     delay 1.0; -- avoid busy wait
+                     if not Is_Callable (ID) then
+                        exit;
+                     end if;
+                  end loop;
+               end select;
+               if Is_Callable (ID) then
+                  if Dom.Suspend then
+                     Display_Message (Dom.Name & " migration timeout");
+                  end if;
+               end if;
+            end if;
+         end Timer;
+
       begin
          Dom.Migrate (Conn.all, Uri_Ptr.all);
          Migration_Jobs (Position).Ok := True;
@@ -91,9 +127,11 @@ package body Monitors.Structures.Updaters is
       end;
    end Migration_Task;
 
-   function Start_Migration_Job
-     (Domain : Domain_Type; To_Host : Connect_Type; To_Uri : String := "")
-      return Positive
+   function Start_Migration_Job (Domain  : Domain_Type;
+                                 To_Host : Connect_Type;
+                                 To_Uri  : String := "";
+                                 Timeout : Natural := 0)
+                                 return Positive
    is
       Number : Positive;
    begin
@@ -102,7 +140,7 @@ package body Monitors.Structures.Updaters is
                              (Worker => new Migration_Task (Number),
                               Ok     => False));
       Migration_Jobs (Number).Worker.Migrate
-        (Domain, To_Host, To_Uri);
+        (Domain, To_Host, To_Uri, Timeout);
       return Number;
    end Start_Migration_Job;
 

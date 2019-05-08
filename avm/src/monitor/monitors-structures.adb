@@ -1063,12 +1063,13 @@ package body Monitors.Structures is
    -------------
    -- Migrate --
    -------------
-   function Migrate (VM : VM_Type; To : Hypervisor) return Positive
+   function Migrate (VM : VM_Type; To : Hypervisor; Timeout : Natural := 0)
+                     return Positive
    is
    begin
       -- connect to function in Updaters
       return Updaters.Start_Migration_Job
-        (Domain_Type (VM), Connect_Type (To.all));
+        (Domain_Type (VM), Connect_Type (To.all), Timeout => Timeout);
    end Migrate;
 
    ----------------

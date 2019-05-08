@@ -127,8 +127,9 @@ package body Migration_Window is
       Domain := Get_Domain (Data.Source_Host.Get_Text,
                             Data.Domain.Get_Text);
       To_Host := Get_Host (Data.Target.Get_Active_Text);
-      
-      Job_Number := Domain.Migrate (To_Host);
+
+      -- Start migration
+      Job_Number := Migrate (Domain, To_Host);
 
       -- Store the job Number end domain as User_data in the window
       User_Job_Data.Set (Win, Job_Number, Job_Data);
