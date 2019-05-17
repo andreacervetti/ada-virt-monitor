@@ -39,8 +39,6 @@ with Monitors.XMLTrees; use Monitors.XMLTrees;
 
 with Get_Monotonic_Time;
 
---  with Interfaces.C; use Interfaces.C;
-
 package body Monitors.Structures is
 
    procedure Free is new Ada.Unchecked_Deallocation
