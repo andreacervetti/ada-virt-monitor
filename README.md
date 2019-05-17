@@ -76,5 +76,5 @@ We only ask you to follow some simple guidelines.
 - Do not interface the monitor with libvirt C functions. Use virtada instead
 - Do not interface the UI with virtada. Interface with the monitor.
 
-If you are interested in in being added to contributors list mail us at the
+If you are interested in in being added to contributor list mail us at the
 address above.
