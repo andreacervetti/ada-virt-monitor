@@ -42,7 +42,7 @@ Go to directory `avm`.
 Run `gprbuild -P avm.gpr`.
 
 ### Structure
-The basic idea is to define an engine ("monitor") managing a dynamic sructure
+The basic idea is to define an engine ("monitor") managing a dynamic structure
 with the information related to defined hypervisor and their status.
 A task periodically upgrades the informations (status of virtual machines,
 statistics, etc.)

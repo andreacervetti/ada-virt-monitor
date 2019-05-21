@@ -25,10 +25,10 @@
 --                                                                         --
 -----------------------------------------------------------------------------
 pragma Ada_2005;
-with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 with Ada.Finalization;
+with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 
-with Libvirt_Host_Api; use Libvirt_Host_Api;
+with Libvirt_Host_Api;
 with System; use System;
 
 package Virtada.Host is
@@ -56,7 +56,8 @@ package Virtada.Host is
    function Uri (Connection : Connect_Type) return String;
    --
    function Host_Name (Connection : Connect_Type) return String;
-   --
+   -- Return the system hostname of the server running the hypervisor
+   -- calling gethostname
    function Get_Type (Connection : Connect_Type) return String;
    --
    function Model (Connection : Connect_Type) return String;
@@ -96,6 +97,7 @@ package Virtada.Host is
    procedure Set_Ask_Password (Func : Ask_Callback_Ptr);
 
 private
+   use Libvirt_Host_Api;
 
    type Connect_Status is (Connected, Not_Connected);
 
@@ -118,3 +120,4 @@ private
    end record;
 
 end Virtada.Host;
+
